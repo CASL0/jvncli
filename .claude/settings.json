@@ -1,3 +1,16 @@
 {
-  "language": "japanese"
+  "language": "japanese",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./gradlew spotlessApply"
+          }
+        ]
+      }
+    ]
+  }
 }
