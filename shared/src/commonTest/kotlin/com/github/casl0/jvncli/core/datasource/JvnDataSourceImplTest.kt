@@ -59,7 +59,11 @@ class JvnDataSourceImplTest {
         var captured: HttpRequestData? = null
         val handler: MockRequestHandler = { request ->
             captured = request
-            respond(content = SUCCESS_ALERT_XML, status = HttpStatusCode.OK)
+            respond(
+                content = SUCCESS_ALERT_XML,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "text/xml"),
+            )
         }
 
         dataSource(handler)

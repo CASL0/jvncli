@@ -19,6 +19,8 @@ kotlin {
         // ここはエンジン非依存の純粋なコアライブラリとする。
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.xml)
             implementation(libs.ktorfit.lib)
             implementation(libs.xmlutil.serialization)
             implementation(libs.kotlinx.coroutines.core)

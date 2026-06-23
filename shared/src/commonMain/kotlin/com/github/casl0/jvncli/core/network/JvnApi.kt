@@ -1,13 +1,14 @@
 package com.github.casl0.jvncli.core.network
 
+import com.github.casl0.jvncli.core.network.model.AlertFeed
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Query
 
 /**
  * MyJVN API の Ktorfit インターフェース。
  *
- * 後続の MyJVN API もこのインターフェースに追記してまとめる。レスポンスは生の XML 文字列で受け取り、 パースは上位レイヤ
- * ([com.github.casl0.jvncli.core.datasource.JvnDataSource]) で行う。
+ * 後続の MyJVN API もこのインターフェースに追記してまとめる。レスポンスは ContentNegotiation により XML から DTO ([AlertFeed])
+ * へ自動デコードされる。
  */
 internal interface JvnApi {
     /**
@@ -29,5 +30,5 @@ internal interface JvnApi {
         @Query("method") method: String = "getAlertList",
         @Query("feed") feed: String = "hnd",
         @Query("ft") ft: String = "xml",
-    ): String
+    ): AlertFeed
 }

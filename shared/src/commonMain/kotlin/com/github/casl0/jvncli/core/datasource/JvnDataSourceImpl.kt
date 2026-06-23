@@ -10,12 +10,12 @@ import com.github.casl0.jvncli.core.network.model.AlertFeed
 import com.github.casl0.jvncli.core.network.model.SecItem
 import dev.zacsweers.metro.Inject
 import kotlin.coroutines.cancellation.CancellationException
-import nl.adaptivity.xmlutil.serialization.XML
 
 /**
- * [JvnApi] を呼び出してレスポンス XML を領域モデルへ変換する [JvnDataSource] の実装。
+ * [JvnApi] を呼び出してレスポンスを領域モデルへ変換する [JvnDataSource] の実装。
  *
- * [JvnApi] はコンストラクタで注入され、本クラス自身も DI グラフ ([com.github.casl0.jvncli.core.di.JvnGraph]) から生成される。
+ * XML から DTO へのデコードは ContentNegotiation が担うため、ここでは retCd 判定と領域モデルへの マッピングに専念する。[JvnApi]
+ * はコンストラクタで注入され、本クラス自身も DI グラフ ([com.github.casl0.jvncli.core.di.JvnGraph]) から生成される。
  */
 @Inject
 internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
@@ -26,8 +26,8 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
         dateFirstPublished: Int?,
         cpeName: String?,
     ): JvnResult<AlertList> {
-        val rawXml =
-            try {
+        return try {
+            val feed =
                 api.getAlertList(
                     startItem = startItem,
                     maxCountItem = maxCountItem,
@@ -35,14 +35,6 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
                     dateFirstPublished = dateFirstPublished,
                     cpeName = cpeName,
                 )
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Throwable) {
-                return JvnResult.NetworkError(e)
-            }
-
-        return try {
-            val feed = xml.decodeFromString(AlertFeed.serializer(), rawXml)
             val status = feed.status
             if (status.retCd != 0) {
                 JvnResult.ApiError(
@@ -58,10 +50,6 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
         } catch (e: Throwable) {
             JvnResult.NetworkError(e)
         }
-    }
-
-    private companion object {
-        val xml = XML { defaultPolicy { ignoreUnknownChildren() } }
     }
 }
 
