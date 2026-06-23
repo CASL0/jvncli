@@ -11,14 +11,11 @@ internal object JvnClient {
     /**
      * [JvnApi] のインスタンスを生成する。
      *
-     * @param engine テスト時に [io.ktor.client.engine.mock.MockEngine] を差し込めるよう注入可能にしている。
-     *   省略時はプラットフォーム既定のエンジンを使う。
+     * @param engine 使用する HTTP エンジン。エンジン選択は実行環境 (app モジュール) の責務とし、 ここでは外部から注入する。テストでは
+     *   [io.ktor.client.engine.mock.MockEngine] を渡せる。
      */
-    fun createApi(engine: HttpClientEngine = defaultHttpClientEngine()): JvnApi {
+    fun createApi(engine: HttpClientEngine): JvnApi {
         val httpClient = HttpClient(engine)
         return Ktorfit.Builder().baseUrl(BASE_URL).httpClient(httpClient).build().createJvnApi()
     }
 }
-
-/** プラットフォーム既定の HTTP エンジン (JVM/Linux/macOS: CIO、Windows: WinHttp)。 */
-internal expect fun defaultHttpClientEngine(): HttpClientEngine
