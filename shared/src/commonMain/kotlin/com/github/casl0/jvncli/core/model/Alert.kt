@@ -24,7 +24,7 @@ data class AlertList(
 data class Alert(
     val id: String,
     val title: String,
-    val published: String,
+    val published: String?,
     val updated: String,
     val severityLabel: String?,
     val severityTerm: String?,
@@ -33,8 +33,8 @@ data class Alert(
 
 /** 注意警戒情報に紐づく関連情報。 */
 data class AlertReference(
-    val title: String,
-    val identifier: String,
+    val title: String?,
+    val identifier: String?,
     val url: String?,
     val cpe: String?,
     val published: String?,

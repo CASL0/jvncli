@@ -46,6 +46,31 @@ internal val SUCCESS_ALERT_XML =
     """
         .trimIndent()
 
+/**
+ * 任意要素が省略された最小構成のレスポンス。
+ *
+ * entry から published/category/sec:items の一部を、sec:item から title/identifier/link を省略しており、 スキーマ上
+ * minOccurs=0 の要素が欠けてもパースできることを検証するための fixture。
+ */
+internal val MINIMAL_ALERT_XML =
+    """
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <feed xmlns="http://www.w3.org/2005/Atom" xmlns:sec="http://jvn.jp/rss/mod_sec/3.0/" xmlns:status="http://jvndb.jvn.jp/myjvn/Status" xml:lang="ja">
+      <entry>
+        <title>最小エントリ</title>
+        <id>MYJVN-ALT-2099-0001</id>
+        <updated>2099-01-01T00:00:00+09:00</updated>
+        <sec:items>
+          <sec:item>
+            <sec:updated>2099-01-01T00:00:00+09:00</sec:updated>
+          </sec:item>
+        </sec:items>
+      </entry>
+      <status:Status version="3.3" method="getAlertList" retCd="0" retMax="50" errCd="" errMsg="" totalRes="1" totalResRet="1" firstRes="1" feed="hnd" ft="xml"/>
+    </feed>
+    """
+        .trimIndent()
+
 /** getAlertList のエラーレスポンス (retCd=1)。entry が無く Status に errCd/errMsg が入る。 */
 internal val ERROR_ALERT_XML =
     """

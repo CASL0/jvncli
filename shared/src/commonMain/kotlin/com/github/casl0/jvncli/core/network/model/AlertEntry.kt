@@ -12,9 +12,10 @@ internal data class AlertEntry(
     @XmlSerialName(value = "title", namespace = ATOM_NS, prefix = "")
     val title: String,
     @XmlElement(true) @XmlSerialName(value = "id", namespace = ATOM_NS, prefix = "") val id: String,
+    // published は Atom スキーマ上 minOccurs=0 (任意) のため nullable。
     @XmlElement(true)
     @XmlSerialName(value = "published", namespace = ATOM_NS, prefix = "")
-    val published: String,
+    val published: String? = null,
     @XmlElement(true)
     @XmlSerialName(value = "updated", namespace = ATOM_NS, prefix = "")
     val updated: String,
@@ -37,12 +38,13 @@ internal data class SecItems(val items: List<SecItem> = emptyList())
 @Serializable
 @XmlSerialName(value = "item", namespace = SEC_NS, prefix = "sec")
 internal data class SecItem(
+    // mod_sec スキーマ上 sec:item の子要素はすべて minOccurs=0 (任意) のため nullable。
     @XmlElement(true)
     @XmlSerialName(value = "title", namespace = SEC_NS, prefix = "sec")
-    val title: String,
+    val title: String? = null,
     @XmlElement(true)
     @XmlSerialName(value = "identifier", namespace = SEC_NS, prefix = "sec")
-    val identifier: String,
+    val identifier: String? = null,
     @XmlSerialName(value = "link", namespace = SEC_NS, prefix = "sec") val link: SecLink? = null,
     @XmlElement(true)
     @XmlSerialName(value = "cpe", namespace = SEC_NS, prefix = "sec")

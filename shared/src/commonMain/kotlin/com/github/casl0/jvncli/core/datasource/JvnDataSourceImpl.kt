@@ -39,8 +39,8 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
             if (status.retCd != 0) {
                 JvnResult.ApiError(
                     retCd = status.retCd,
-                    errCd = status.errCd?.ifBlank { null },
-                    errMsg = status.errMsg?.ifBlank { null },
+                    errCd = status.errCd.ifBlank { null },
+                    errMsg = status.errMsg.ifBlank { null },
                 )
             } else {
                 JvnResult.Success(feed.toAlertList())

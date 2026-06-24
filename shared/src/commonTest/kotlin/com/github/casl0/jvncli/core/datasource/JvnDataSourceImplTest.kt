@@ -2,6 +2,7 @@ package com.github.casl0.jvncli.core.datasource
 
 import com.github.casl0.jvncli.core.ERROR_ALERT_XML
 import com.github.casl0.jvncli.core.JvnResult
+import com.github.casl0.jvncli.core.MINIMAL_ALERT_XML
 import com.github.casl0.jvncli.core.SUCCESS_ALERT_XML
 import com.github.casl0.jvncli.core.network.JvnClient
 import io.ktor.client.engine.mock.MockEngine
@@ -78,6 +79,23 @@ class JvnDataSourceImplTest {
         assertEquals("cpe:/a:foo:bar", params["cpeName"])
         // 未指定の任意パラメータはクエリに含まれない。
         assertNull(params["datePublished"])
+    }
+
+    @Test
+    fun getAlertList_任意要素が欠けてもパースできる() = runTest {
+        val result = dataSource(respondXml(MINIMAL_ALERT_XML)).getAlertList()
+
+        assertTrue(result is JvnResult.Success, "Success を期待: $result")
+        val alert = result.data.alerts.single()
+        assertEquals("最小エントリ", alert.title)
+        assertNull(alert.published)
+        assertNull(alert.severityLabel)
+
+        val ref = alert.references.single()
+        assertNull(ref.title)
+        assertNull(ref.identifier)
+        assertNull(ref.url)
+        assertEquals("2099-01-01T00:00:00+09:00", ref.updated)
     }
 
     @Test
