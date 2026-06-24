@@ -52,4 +52,29 @@ internal interface JvnApi {
         @Query("feed") feed: String = "hnd",
         @Query("ft") ft: String = "xml",
     ): VendorResult
+
+    /**
+     * 製品の一覧 (getProductList) を取得する。ベンダーごとに製品が入れ子で返る。
+     *
+     * @param startItem エントリの開始位置 (既定 1)
+     * @param maxCountItem エントリの取得数 (既定 10000・上限 10000)
+     * @param cpeName CPE 名 (`cpe:/{part}:{vendor}:{product}`)
+     * @param vendorId ベンダー ID
+     * @param productId 製品 ID
+     * @param keyword 検索キーワード (UTF-8)
+     * @param lang 言語 (`ja` または `en`、既定 `ja`)
+     */
+    @GET("myjvn")
+    suspend fun getProductList(
+        @Query("startItem") startItem: Int? = null,
+        @Query("maxCountItem") maxCountItem: Int? = null,
+        @Query("cpeName") cpeName: String? = null,
+        @Query("vendorId") vendorId: Int? = null,
+        @Query("productId") productId: Int? = null,
+        @Query("keyword") keyword: String? = null,
+        @Query("lang") lang: String? = null,
+        @Query("method") method: String = "getProductList",
+        @Query("feed") feed: String = "hnd",
+        @Query("ft") ft: String = "xml",
+    ): VendorResult
 }

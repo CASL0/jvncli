@@ -2,6 +2,7 @@ package com.github.casl0.jvncli.core.datasource
 
 import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.AlertList
+import com.github.casl0.jvncli.core.model.ProductList
 import com.github.casl0.jvncli.core.model.VendorList
 
 /**
@@ -43,4 +44,25 @@ interface JvnDataSource {
         keyword: String? = null,
         lang: String? = null,
     ): JvnResult<VendorList>
+
+    /**
+     * 製品の一覧 (getProductList) を取得する。ベンダーごとに製品が入れ子で返る。
+     *
+     * @param startItem エントリの開始位置 (既定 1)
+     * @param maxCountItem エントリの取得数 (既定 10000・上限 10000)
+     * @param cpeName CPE 名 (`cpe:/{part}:{vendor}:{product}`)
+     * @param vendorId ベンダー ID
+     * @param productId 製品 ID
+     * @param keyword 検索キーワード
+     * @param lang 言語 (`ja` または `en`)
+     */
+    suspend fun getProductList(
+        startItem: Int? = null,
+        maxCountItem: Int? = null,
+        cpeName: String? = null,
+        vendorId: Int? = null,
+        productId: Int? = null,
+        keyword: String? = null,
+        lang: String? = null,
+    ): JvnResult<ProductList>
 }

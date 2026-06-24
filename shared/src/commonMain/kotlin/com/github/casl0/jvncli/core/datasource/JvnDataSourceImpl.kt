@@ -4,12 +4,16 @@ import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.Alert
 import com.github.casl0.jvncli.core.model.AlertList
 import com.github.casl0.jvncli.core.model.AlertReference
+import com.github.casl0.jvncli.core.model.Product
+import com.github.casl0.jvncli.core.model.ProductList
+import com.github.casl0.jvncli.core.model.ProductVendor
 import com.github.casl0.jvncli.core.model.Vendor
 import com.github.casl0.jvncli.core.model.VendorList
 import com.github.casl0.jvncli.core.network.JvnApi
 import com.github.casl0.jvncli.core.network.model.AlertEntry
 import com.github.casl0.jvncli.core.network.model.AlertFeed
 import com.github.casl0.jvncli.core.network.model.JvnStatus
+import com.github.casl0.jvncli.core.network.model.ProductEntry
 import com.github.casl0.jvncli.core.network.model.SecItem
 import com.github.casl0.jvncli.core.network.model.VendorEntry
 import com.github.casl0.jvncli.core.network.model.VendorResult
@@ -64,6 +68,31 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
             },
             statusOf = { it.status },
             onSuccess = { it.toVendorList() },
+        )
+
+    override suspend fun getProductList(
+        startItem: Int?,
+        maxCountItem: Int?,
+        cpeName: String?,
+        vendorId: Int?,
+        productId: Int?,
+        keyword: String?,
+        lang: String?,
+    ): JvnResult<ProductList> =
+        fetch(
+            call = {
+                api.getProductList(
+                    startItem = startItem,
+                    maxCountItem = maxCountItem,
+                    cpeName = cpeName,
+                    vendorId = vendorId,
+                    productId = productId,
+                    keyword = keyword,
+                    lang = lang,
+                )
+            },
+            statusOf = { it.status },
+            onSuccess = { it.toProductList() },
         )
 
     /**
@@ -137,3 +166,18 @@ private fun VendorResult.toVendorList(): VendorList {
 }
 
 private fun VendorEntry.toVendor(): Vendor = Vendor(id = vid, name = vname, cpe = cpe)
+
+private fun VendorResult.toProductList(): ProductList {
+    val vendors = vendorInfo?.vendors.orEmpty()
+    return ProductList(
+        vendors = vendors.map { it.toProductVendor() },
+        totalResults = status.totalRes.toIntOrNull() ?: 0,
+        returnedResults = status.totalResRet.toIntOrNull() ?: vendors.size,
+        firstResult = status.firstRes.toIntOrNull() ?: 0,
+    )
+}
+
+private fun VendorEntry.toProductVendor(): ProductVendor =
+    ProductVendor(id = vid, name = vname, cpe = cpe, products = products.map { it.toProduct() })
+
+private fun ProductEntry.toProduct(): Product = Product(id = pid, name = pname, cpe = cpe)
