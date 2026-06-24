@@ -14,6 +14,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -70,7 +71,7 @@ class JvnDataSourceImplTest {
         dataSource(handler)
             .getAlertList(startItem = 5, maxCountItem = 10, cpeName = "cpe:/a:foo:bar")
 
-        val params = captured!!.url.parameters
+        val params = assertNotNull(captured).url.parameters
         assertEquals("getAlertList", params["method"])
         assertEquals("hnd", params["feed"])
         assertEquals("xml", params["ft"])

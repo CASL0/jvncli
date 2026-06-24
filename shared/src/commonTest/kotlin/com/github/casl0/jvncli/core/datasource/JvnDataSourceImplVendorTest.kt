@@ -13,6 +13,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -64,7 +65,7 @@ class JvnDataSourceImplVendorTest {
         dataSource(handler)
             .getVendorList(startItem = 1, maxCountItem = 100, keyword = "cisco", lang = "en")
 
-        val params = captured!!.url.parameters
+        val params = assertNotNull(captured).url.parameters
         assertEquals("getVendorList", params["method"])
         assertEquals("hnd", params["feed"])
         assertEquals("xml", params["ft"])
