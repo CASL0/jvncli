@@ -54,6 +54,9 @@
 - **型の nullable は実データに合わせる**。スキーマ/仕様で必須なら非 null、任意なら nullable。
   「来ない null」を防御的に nullable にして増やさない(本リポジトリでは XSD の `minOccurs`/`use` に整合させている)。
 - nullable Boolean は `if (value == true)` / `== false` で判定。
+- **`!!`(非null表明)は使わない**。null になり得ないなら型を非 null にする。やむを得ず解す場合は
+  `?.`/`?:`/`requireNotNull`/`checkNotNull`(メッセージ付き)を使う。テストでは `kotlin.test.assertNotNull`
+  (非null値を返す)を用いる。
 
 ## ドキュメントコメント (KDoc)
 
