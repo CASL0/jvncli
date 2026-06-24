@@ -1,14 +1,19 @@
 package com.github.casl0.jvncli.core.datasource
 
 import com.github.casl0.jvncli.core.JvnResult
+import com.github.casl0.jvncli.core.model.AffectedProduct
 import com.github.casl0.jvncli.core.model.Alert
 import com.github.casl0.jvncli.core.model.AlertList
 import com.github.casl0.jvncli.core.model.AlertReference
+import com.github.casl0.jvncli.core.model.CvssScore
 import com.github.casl0.jvncli.core.model.Product
 import com.github.casl0.jvncli.core.model.ProductList
 import com.github.casl0.jvncli.core.model.ProductVendor
 import com.github.casl0.jvncli.core.model.Vendor
 import com.github.casl0.jvncli.core.model.VendorList
+import com.github.casl0.jvncli.core.model.VulnOverview
+import com.github.casl0.jvncli.core.model.VulnOverviewList
+import com.github.casl0.jvncli.core.model.VulnReference
 import com.github.casl0.jvncli.core.network.JvnApi
 import com.github.casl0.jvncli.core.network.model.AlertEntry
 import com.github.casl0.jvncli.core.network.model.AlertFeed
@@ -17,6 +22,8 @@ import com.github.casl0.jvncli.core.network.model.ProductEntry
 import com.github.casl0.jvncli.core.network.model.SecItem
 import com.github.casl0.jvncli.core.network.model.VendorEntry
 import com.github.casl0.jvncli.core.network.model.VendorResult
+import com.github.casl0.jvncli.core.network.model.VulnOverviewFeed
+import com.github.casl0.jvncli.core.network.model.VulnOverviewItem
 import dev.zacsweers.metro.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -93,6 +100,41 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
             },
             statusOf = { it.status },
             onSuccess = { it.toProductList() },
+        )
+
+    override suspend fun getVulnOverviewList(
+        startItem: Int?,
+        maxCountItem: Int?,
+        cpeName: String?,
+        vendorId: Int?,
+        productId: Int?,
+        keyword: String?,
+        severity: String?,
+        vector: String?,
+        rangeDatePublic: String?,
+        rangeDatePublished: String?,
+        rangeDateFirstPublished: String?,
+        lang: String?,
+    ): JvnResult<VulnOverviewList> =
+        fetch(
+            call = {
+                api.getVulnOverviewList(
+                    startItem = startItem,
+                    maxCountItem = maxCountItem,
+                    cpeName = cpeName,
+                    vendorId = vendorId,
+                    productId = productId,
+                    keyword = keyword,
+                    severity = severity,
+                    vector = vector,
+                    rangeDatePublic = rangeDatePublic,
+                    rangeDatePublished = rangeDatePublished,
+                    rangeDateFirstPublished = rangeDateFirstPublished,
+                    lang = lang,
+                )
+            },
+            statusOf = { it.status },
+            onSuccess = { it.toVulnOverviewList() },
         )
 
     /**
@@ -181,3 +223,35 @@ private fun VendorEntry.toProductVendor(): ProductVendor =
     ProductVendor(id = vid, name = vname, cpe = cpe, products = products.map { it.toProduct() })
 
 private fun ProductEntry.toProduct(): Product = Product(id = pid, name = pname, cpe = cpe)
+
+private fun VulnOverviewFeed.toVulnOverviewList(): VulnOverviewList =
+    VulnOverviewList(
+        items = items.map { it.toVulnOverview() },
+        totalResults = status.totalRes.toIntOrNull() ?: 0,
+        returnedResults = status.totalResRet.toIntOrNull() ?: items.size,
+        firstResult = status.firstRes.toIntOrNull() ?: 0,
+    )
+
+private fun VulnOverviewItem.toVulnOverview(): VulnOverview =
+    VulnOverview(
+        id = identifier,
+        title = title,
+        link = link,
+        description = description,
+        references = references.map { VulnReference(it.source, it.id, it.title, it.url) },
+        affectedProducts =
+            cpes.map { AffectedProduct(vendor = it.vendor, product = it.product, cpe = it.cpe) },
+        cvssScores =
+            cvssList.map {
+                CvssScore(
+                    version = it.version,
+                    type = it.type,
+                    severity = it.severity,
+                    score = it.score.toDoubleOrNull(),
+                    vector = it.vector,
+                )
+            },
+        date = date,
+        issued = issued,
+        modified = modified,
+    )

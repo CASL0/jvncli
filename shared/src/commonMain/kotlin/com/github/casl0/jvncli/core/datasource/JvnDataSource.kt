@@ -4,6 +4,7 @@ import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.AlertList
 import com.github.casl0.jvncli.core.model.ProductList
 import com.github.casl0.jvncli.core.model.VendorList
+import com.github.casl0.jvncli.core.model.VulnOverviewList
 
 /**
  * MyJVN の各 API からデータを取得するデータソース。
@@ -65,4 +66,35 @@ interface JvnDataSource {
         keyword: String? = null,
         lang: String? = null,
     ): JvnResult<ProductList>
+
+    /**
+     * 脆弱性概要の一覧 (getVulnOverviewList) を取得する。
+     *
+     * @param startItem エントリの開始位置 (既定 1)
+     * @param maxCountItem エントリの取得数 (既定 50・上限 50)
+     * @param cpeName CPE 名 (`cpe:/{part}:{vendor}:{product}`)
+     * @param vendorId ベンダー ID
+     * @param productId 製品 ID
+     * @param keyword 検索キーワード
+     * @param severity CVSS 深刻度 (`n`/`l`/`m`/`h`/`c`)
+     * @param vector CVSS ベクタ文字列
+     * @param rangeDatePublic 公開日の範囲 (`n`/`w`/`m`)
+     * @param rangeDatePublished 更新日の範囲 (`n`/`w`/`m`)
+     * @param rangeDateFirstPublished 初公開日の範囲 (`n`/`w`/`m`)
+     * @param lang 言語 (`ja` または `en`)
+     */
+    suspend fun getVulnOverviewList(
+        startItem: Int? = null,
+        maxCountItem: Int? = null,
+        cpeName: String? = null,
+        vendorId: Int? = null,
+        productId: Int? = null,
+        keyword: String? = null,
+        severity: String? = null,
+        vector: String? = null,
+        rangeDatePublic: String? = null,
+        rangeDatePublished: String? = null,
+        rangeDateFirstPublished: String? = null,
+        lang: String? = null,
+    ): JvnResult<VulnOverviewList>
 }
