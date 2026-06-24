@@ -33,3 +33,26 @@ kotlin {
         }
     }
 }
+
+kover {
+    reports {
+        filters {
+            excludes {
+                // 自動生成コードは計測対象外にする。
+                annotatedBy("kotlinx.serialization.Serializable") // @Serializable DTO の生成シリアライザ
+                classes(
+                    "com.github.casl0.jvncli.core.network._JvnApi*", // Ktorfit 生成の API 実装
+                    "com.github.casl0.jvncli.core.di.JvnGraph*", // Metro 生成の DI グラフ
+                    "*MetroFactory*", // Metro 生成のファクトリ
+                    "com.github.casl0.jvncli.GreetingKt", // 雛形のサンプルコード
+                )
+            }
+        }
+        verify {
+            rule {
+                // 行カバレッジの下限。check タスクで検証される。
+                minBound(80)
+            }
+        }
+    }
+}
