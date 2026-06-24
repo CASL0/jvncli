@@ -2,6 +2,7 @@ package com.github.casl0.jvncli.core.network
 
 import com.github.casl0.jvncli.core.network.model.AlertFeed
 import com.github.casl0.jvncli.core.network.model.VendorResult
+import com.github.casl0.jvncli.core.network.model.VulnDetailDocument
 import com.github.casl0.jvncli.core.network.model.VulnOverviewFeed
 import de.jensklingenberg.ktorfit.http.GET
 import de.jensklingenberg.ktorfit.http.Query
@@ -113,4 +114,23 @@ internal interface JvnApi {
         @Query("feed") feed: String = "hnd",
         @Query("ft") ft: String = "xml",
     ): VulnOverviewFeed
+
+    /**
+     * 脆弱性詳細 (getVulnDetailInfo) を取得する。
+     *
+     * @param vulnId 脆弱性対策 ID (`JVNDB-YYYY-XXXXXX`)。複数指定する場合は `+` で連結する
+     * @param startItem エントリの開始位置 (既定 1)
+     * @param maxCountItem エントリの取得数 (既定 10・上限 10)
+     * @param lang 言語 (`ja` または `en`、既定 `ja`)
+     */
+    @GET("myjvn")
+    suspend fun getVulnDetailInfo(
+        @Query("vulnId") vulnId: String,
+        @Query("startItem") startItem: Int? = null,
+        @Query("maxCountItem") maxCountItem: Int? = null,
+        @Query("lang") lang: String? = null,
+        @Query("method") method: String = "getVulnDetailInfo",
+        @Query("feed") feed: String = "hnd",
+        @Query("ft") ft: String = "xml",
+    ): VulnDetailDocument
 }

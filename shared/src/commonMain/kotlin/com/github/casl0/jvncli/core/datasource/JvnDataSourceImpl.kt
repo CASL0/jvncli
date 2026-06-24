@@ -2,26 +2,37 @@ package com.github.casl0.jvncli.core.datasource
 
 import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.AffectedProduct
+import com.github.casl0.jvncli.core.model.AffectedProductDetail
 import com.github.casl0.jvncli.core.model.Alert
 import com.github.casl0.jvncli.core.model.AlertList
 import com.github.casl0.jvncli.core.model.AlertReference
 import com.github.casl0.jvncli.core.model.CvssScore
+import com.github.casl0.jvncli.core.model.HistoryEntry
 import com.github.casl0.jvncli.core.model.Product
 import com.github.casl0.jvncli.core.model.ProductList
 import com.github.casl0.jvncli.core.model.ProductVendor
+import com.github.casl0.jvncli.core.model.RelatedInfo
 import com.github.casl0.jvncli.core.model.Vendor
 import com.github.casl0.jvncli.core.model.VendorList
+import com.github.casl0.jvncli.core.model.VulnDetail
+import com.github.casl0.jvncli.core.model.VulnDetailList
 import com.github.casl0.jvncli.core.model.VulnOverview
 import com.github.casl0.jvncli.core.model.VulnOverviewList
 import com.github.casl0.jvncli.core.model.VulnReference
 import com.github.casl0.jvncli.core.network.JvnApi
+import com.github.casl0.jvncli.core.network.model.AffectedItem
 import com.github.casl0.jvncli.core.network.model.AlertEntry
 import com.github.casl0.jvncli.core.network.model.AlertFeed
+import com.github.casl0.jvncli.core.network.model.HistoryItem
 import com.github.casl0.jvncli.core.network.model.JvnStatus
 import com.github.casl0.jvncli.core.network.model.ProductEntry
+import com.github.casl0.jvncli.core.network.model.RelatedItem
 import com.github.casl0.jvncli.core.network.model.SecItem
 import com.github.casl0.jvncli.core.network.model.VendorEntry
 import com.github.casl0.jvncli.core.network.model.VendorResult
+import com.github.casl0.jvncli.core.network.model.VuldefCvss
+import com.github.casl0.jvncli.core.network.model.Vulinfo
+import com.github.casl0.jvncli.core.network.model.VulnDetailDocument
 import com.github.casl0.jvncli.core.network.model.VulnOverviewFeed
 import com.github.casl0.jvncli.core.network.model.VulnOverviewItem
 import dev.zacsweers.metro.Inject
@@ -135,6 +146,25 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
             },
             statusOf = { it.status },
             onSuccess = { it.toVulnOverviewList() },
+        )
+
+    override suspend fun getVulnDetailInfo(
+        vulnId: String,
+        startItem: Int?,
+        maxCountItem: Int?,
+        lang: String?,
+    ): JvnResult<VulnDetailList> =
+        fetch(
+            call = {
+                api.getVulnDetailInfo(
+                    vulnId = vulnId,
+                    startItem = startItem,
+                    maxCountItem = maxCountItem,
+                    lang = lang,
+                )
+            },
+            statusOf = { it.status },
+            onSuccess = { it.toVulnDetailList() },
         )
 
     /**
@@ -255,3 +285,52 @@ private fun VulnOverviewItem.toVulnOverview(): VulnOverview =
         issued = issued,
         modified = modified,
     )
+
+private fun VulnDetailDocument.toVulnDetailList(): VulnDetailList =
+    VulnDetailList(
+        items = vulinfos.map { it.toVulnDetail() },
+        totalResults = status.totalRes.toIntOrNull() ?: 0,
+        returnedResults = status.totalResRet.toIntOrNull() ?: vulinfos.size,
+        firstResult = status.firstRes.toIntOrNull() ?: 0,
+    )
+
+private fun Vulinfo.toVulnDetail(): VulnDetail {
+    val d = data
+    return VulnDetail(
+        id = vulinfoId,
+        title = d?.title,
+        overview = d?.description?.overview,
+        affected = d?.affected?.items?.map { it.toAffectedProductDetail() } ?: emptyList(),
+        cvssScores = d?.impact?.cvssList?.map { it.toCvssScore() } ?: emptyList(),
+        impacts = d?.impact?.impactItems?.mapNotNull { it.description } ?: emptyList(),
+        solutions = d?.solution?.items?.mapNotNull { it.description } ?: emptyList(),
+        related = d?.related?.items?.map { it.toRelatedInfo() } ?: emptyList(),
+        history = d?.history?.items?.map { it.toHistoryEntry() } ?: emptyList(),
+        dateFirstPublished = d?.dateFirstPublished,
+        dateLastUpdated = d?.dateLastUpdated,
+        datePublic = d?.datePublic,
+    )
+}
+
+private fun AffectedItem.toAffectedProductDetail(): AffectedProductDetail =
+    AffectedProductDetail(
+        vendor = name,
+        productName = productName,
+        cpes = cpes.map { it.value },
+        versions = versionNumbers,
+    )
+
+private fun VuldefCvss.toCvssScore(): CvssScore =
+    CvssScore(
+        version = version,
+        type = severity?.type,
+        severity = severity?.value,
+        score = base?.toDoubleOrNull(),
+        vector = vector,
+    )
+
+private fun RelatedItem.toRelatedInfo(): RelatedInfo =
+    RelatedInfo(type = type, name = name, vulinfoId = vulinfoId, title = title, url = url)
+
+private fun HistoryItem.toHistoryEntry(): HistoryEntry =
+    HistoryEntry(historyNo = historyNo, dateTime = dateTime, descriptions = descriptions)

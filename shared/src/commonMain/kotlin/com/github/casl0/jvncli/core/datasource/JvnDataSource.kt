@@ -4,6 +4,7 @@ import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.AlertList
 import com.github.casl0.jvncli.core.model.ProductList
 import com.github.casl0.jvncli.core.model.VendorList
+import com.github.casl0.jvncli.core.model.VulnDetailList
 import com.github.casl0.jvncli.core.model.VulnOverviewList
 
 /**
@@ -97,4 +98,19 @@ interface JvnDataSource {
         rangeDateFirstPublished: String? = null,
         lang: String? = null,
     ): JvnResult<VulnOverviewList>
+
+    /**
+     * 脆弱性詳細 (getVulnDetailInfo) を取得する。
+     *
+     * @param vulnId 脆弱性対策 ID (`JVNDB-YYYY-XXXXXX`)。複数指定する場合は `+` で連結する
+     * @param startItem エントリの開始位置 (既定 1)
+     * @param maxCountItem エントリの取得数 (既定 10・上限 10)
+     * @param lang 言語 (`ja` または `en`)
+     */
+    suspend fun getVulnDetailInfo(
+        vulnId: String,
+        startItem: Int? = null,
+        maxCountItem: Int? = null,
+        lang: String? = null,
+    ): JvnResult<VulnDetailList>
 }
