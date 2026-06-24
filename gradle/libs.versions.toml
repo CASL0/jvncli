@@ -4,6 +4,7 @@ ksp = "2.3.9"
 ktor = "3.5.0"
 ktorfit = "2.7.5"
 metro = "1.0.1"
+kover = "0.9.8"
 xmlutil = "0.91.3"
 coroutines = "1.10.2"
 spotless = "8.7.0"
@@ -27,4 +28,5 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktorfit = { id = "de.jensklingenberg.ktorfit", version.ref = "ktorfit" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
