@@ -48,11 +48,15 @@ data class VulnReference(val source: String?, val id: String?, val title: String
 /** 影響を受ける製品。 */
 data class AffectedProduct(val vendor: String, val product: String?, val cpe: String)
 
-/** CVSS 評価。 */
+/**
+ * CVSS 評価。getVulnOverviewList と getVulnDetailInfo で共有する。
+ *
+ * VULDEF 形式では各項目が任意のため nullable で受ける。
+ */
 data class CvssScore(
-    val version: String,
-    val type: String,
-    val severity: String,
+    val version: String?,
+    val type: String?,
+    val severity: String?,
     val score: Double?,
     val vector: String?,
 )

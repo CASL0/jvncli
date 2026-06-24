@@ -23,3 +23,6 @@ internal const val DC_NS = "http://purl.org/dc/elements/1.1/"
 
 /** Dublin Core Terms の名前空間。 */
 internal const val DCTERMS_NS = "http://purl.org/dc/terms/"
+
+/** VULDEF の名前空間 (getVulnDetailInfo)。 */
+internal const val VULDEF_NS = "http://jvn.jp/vuldef/"
