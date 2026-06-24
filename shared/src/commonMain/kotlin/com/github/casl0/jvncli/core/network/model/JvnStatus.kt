@@ -9,7 +9,7 @@ import nl.adaptivity.xmlutil.serialization.XmlSerialName
  * [retCd] が 0 なら正常、0 以外ならエラーで [errCd] / [errMsg] に詳細が入る。
  *
  * status_3.3.xsd で `use="required"` の属性は常に存在する (件数系はエラー時に空文字になるが省略はされない) ため 非 nullable
- * で受ける。`use="optional"` の [feed] のみ nullable。
+ * で受ける。`use="optional"` の [feed] / [lang] のみ nullable (API により有無が異なる)。
  */
 @Serializable
 @XmlSerialName(value = "Status", namespace = STATUS_NS, prefix = "status")
@@ -24,4 +24,5 @@ internal data class JvnStatus(
     val totalResRet: String,
     val firstRes: String,
     val feed: String? = null,
+    val lang: String? = null,
 )

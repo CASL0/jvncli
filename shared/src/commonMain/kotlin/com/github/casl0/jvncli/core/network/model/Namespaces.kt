@@ -8,3 +8,6 @@ internal const val SEC_NS = "http://jvn.jp/rss/mod_sec/3.0/"
 
 /** MyJVN の Status 要素の名前空間。 */
 internal const val STATUS_NS = "http://jvndb.jvn.jp/myjvn/Status"
+
+/** MyJVN の Result (getVendorList など) の名前空間。 */
+internal const val RESULTS_NS = "http://jvndb.jvn.jp/myjvn/Results"
