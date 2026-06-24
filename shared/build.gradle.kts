@@ -44,7 +44,6 @@ kover {
                     "com.github.casl0.jvncli.core.network._JvnApi*", // Ktorfit 生成の API 実装
                     "com.github.casl0.jvncli.core.di.JvnGraph*", // Metro 生成の DI グラフ
                     "*MetroFactory*", // Metro 生成のファクトリ
-                    "com.github.casl0.jvncli.GreetingKt", // 雛形のサンプルコード
                 )
             }
         }
