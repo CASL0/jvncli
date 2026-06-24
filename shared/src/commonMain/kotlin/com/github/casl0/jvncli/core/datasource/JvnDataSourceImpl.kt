@@ -4,10 +4,15 @@ import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.Alert
 import com.github.casl0.jvncli.core.model.AlertList
 import com.github.casl0.jvncli.core.model.AlertReference
+import com.github.casl0.jvncli.core.model.Vendor
+import com.github.casl0.jvncli.core.model.VendorList
 import com.github.casl0.jvncli.core.network.JvnApi
 import com.github.casl0.jvncli.core.network.model.AlertEntry
 import com.github.casl0.jvncli.core.network.model.AlertFeed
+import com.github.casl0.jvncli.core.network.model.JvnStatus
 import com.github.casl0.jvncli.core.network.model.SecItem
+import com.github.casl0.jvncli.core.network.model.VendorEntry
+import com.github.casl0.jvncli.core.network.model.VendorResult
 import dev.zacsweers.metro.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -25,9 +30,9 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
         datePublished: Int?,
         dateFirstPublished: Int?,
         cpeName: String?,
-    ): JvnResult<AlertList> {
-        return try {
-            val feed =
+    ): JvnResult<AlertList> =
+        fetch(
+            call = {
                 api.getAlertList(
                     startItem = startItem,
                     maxCountItem = maxCountItem,
@@ -35,7 +40,47 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
                     dateFirstPublished = dateFirstPublished,
                     cpeName = cpeName,
                 )
-            val status = feed.status
+            },
+            statusOf = { it.status },
+            onSuccess = { it.toAlertList() },
+        )
+
+    override suspend fun getVendorList(
+        startItem: Int?,
+        maxCountItem: Int?,
+        cpeName: String?,
+        keyword: String?,
+        lang: String?,
+    ): JvnResult<VendorList> =
+        fetch(
+            call = {
+                api.getVendorList(
+                    startItem = startItem,
+                    maxCountItem = maxCountItem,
+                    cpeName = cpeName,
+                    keyword = keyword,
+                    lang = lang,
+                )
+            },
+            statusOf = { it.status },
+            onSuccess = { it.toVendorList() },
+        )
+
+    /**
+     * API 呼び出し・retCd 判定・例外処理を一元化する共通ヘルパー。
+     *
+     * @param call API を呼び DTO を取得する処理
+     * @param statusOf DTO から [JvnStatus] を取り出す処理
+     * @param onSuccess retCd=0 のとき DTO を領域モデルへ変換する処理
+     */
+    private suspend fun <T, R> fetch(
+        call: suspend () -> T,
+        statusOf: (T) -> JvnStatus,
+        onSuccess: (T) -> R,
+    ): JvnResult<R> =
+        try {
+            val dto = call()
+            val status = statusOf(dto)
             if (status.retCd != 0) {
                 JvnResult.ApiError(
                     retCd = status.retCd,
@@ -43,22 +88,21 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
                     errMsg = status.errMsg.ifBlank { null },
                 )
             } else {
-                JvnResult.Success(feed.toAlertList())
+                JvnResult.Success(onSuccess(dto))
             }
         } catch (e: CancellationException) {
             throw e
         } catch (e: Throwable) {
             JvnResult.NetworkError(e)
         }
-    }
 }
 
 private fun AlertFeed.toAlertList(): AlertList =
     AlertList(
         alerts = entries.map { it.toAlert() },
-        totalResults = status.totalRes?.toIntOrNull() ?: 0,
-        returnedResults = status.totalResRet?.toIntOrNull() ?: entries.size,
-        firstResult = status.firstRes?.toIntOrNull() ?: 0,
+        totalResults = status.totalRes.toIntOrNull() ?: 0,
+        returnedResults = status.totalResRet.toIntOrNull() ?: entries.size,
+        firstResult = status.firstRes.toIntOrNull() ?: 0,
     )
 
 private fun AlertEntry.toAlert(): Alert =
@@ -81,3 +125,15 @@ private fun SecItem.toReference(): AlertReference =
         published = published,
         updated = updated,
     )
+
+private fun VendorResult.toVendorList(): VendorList {
+    val vendors = vendorInfo?.vendors.orEmpty()
+    return VendorList(
+        vendors = vendors.map { it.toVendor() },
+        totalResults = status.totalRes.toIntOrNull() ?: 0,
+        returnedResults = status.totalResRet.toIntOrNull() ?: vendors.size,
+        firstResult = status.firstRes.toIntOrNull() ?: 0,
+    )
+}
+
+private fun VendorEntry.toVendor(): Vendor = Vendor(id = vid, name = vname, cpe = cpe)

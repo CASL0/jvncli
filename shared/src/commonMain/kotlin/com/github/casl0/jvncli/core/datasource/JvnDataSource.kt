@@ -2,6 +2,7 @@ package com.github.casl0.jvncli.core.datasource
 
 import com.github.casl0.jvncli.core.JvnResult
 import com.github.casl0.jvncli.core.model.AlertList
+import com.github.casl0.jvncli.core.model.VendorList
 
 /**
  * MyJVN の各 API からデータを取得するデータソース。
@@ -25,4 +26,21 @@ interface JvnDataSource {
         dateFirstPublished: Int? = null,
         cpeName: String? = null,
     ): JvnResult<AlertList>
+
+    /**
+     * ベンダーの一覧 (getVendorList) を取得する。
+     *
+     * @param startItem エントリの開始位置 (既定 1)
+     * @param maxCountItem エントリの取得数 (既定 10000・上限 10000)
+     * @param cpeName CPE 識別子 (ワイルドカード `*` 可)
+     * @param keyword ベンダー名の検索キーワード
+     * @param lang 言語 (`ja` または `en`)
+     */
+    suspend fun getVendorList(
+        startItem: Int? = null,
+        maxCountItem: Int? = null,
+        cpeName: String? = null,
+        keyword: String? = null,
+        lang: String? = null,
+    ): JvnResult<VendorList>
 }
