@@ -1,6 +1,7 @@
 package com.github.casl0.jvncli.core.network
 
 import com.github.casl0.jvncli.core.network.model.AlertFeed
+import com.github.casl0.jvncli.core.network.model.StatisticsResult
 import com.github.casl0.jvncli.core.network.model.VendorResult
 import com.github.casl0.jvncli.core.network.model.VulnDetailDocument
 import com.github.casl0.jvncli.core.network.model.VulnOverviewFeed
@@ -133,4 +134,36 @@ internal interface JvnApi {
         @Query("feed") feed: String = "hnd",
         @Query("ft") ft: String = "xml",
     ): VulnDetailDocument
+
+    /**
+     * 統計情報 (getStatistics) を取得する。feed=hnd / feed=itm を切り替えて利用する。
+     *
+     * @param theme 集計対象 (`sumJvnDb`/`sumCvss`/`sumCwe`/`sumAll`)
+     * @param feed フィード (`hnd` または `itm`、既定 `hnd`)
+     * @param type 集計単位 (`y`=年/`q`=四半期/`m`=月、既定 `y`)
+     * @param cweId CWE-ID (theme=sumCwe のとき必須)
+     * @param pid 製品 ID
+     * @param cpeName CPE 名
+     * @param datePublicStartY 集計開始年 (4 桁)
+     * @param datePublicStartM 集計開始月 (1〜12)
+     * @param datePublicEndY 集計終了年 (4 桁)
+     * @param datePublicEndM 集計終了月 (1〜12)
+     * @param lang 言語 (`ja` または `en`)
+     */
+    @GET("myjvn")
+    suspend fun getStatistics(
+        @Query("theme") theme: String,
+        @Query("feed") feed: String = "hnd",
+        @Query("type") type: String? = null,
+        @Query("cweId") cweId: String? = null,
+        @Query("pid") pid: Int? = null,
+        @Query("cpeName") cpeName: String? = null,
+        @Query("datePublicStartY") datePublicStartY: Int? = null,
+        @Query("datePublicStartM") datePublicStartM: Int? = null,
+        @Query("datePublicEndY") datePublicEndY: Int? = null,
+        @Query("datePublicEndM") datePublicEndM: Int? = null,
+        @Query("lang") lang: String? = null,
+        @Query("method") method: String = "getStatistics",
+        @Query("ft") ft: String = "xml",
+    ): StatisticsResult
 }

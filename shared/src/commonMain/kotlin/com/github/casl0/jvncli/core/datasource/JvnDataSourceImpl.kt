@@ -12,6 +12,10 @@ import com.github.casl0.jvncli.core.model.Product
 import com.github.casl0.jvncli.core.model.ProductList
 import com.github.casl0.jvncli.core.model.ProductVendor
 import com.github.casl0.jvncli.core.model.RelatedInfo
+import com.github.casl0.jvncli.core.model.StatDataPoint
+import com.github.casl0.jvncli.core.model.StatSummary
+import com.github.casl0.jvncli.core.model.StatTotal
+import com.github.casl0.jvncli.core.model.Statistics
 import com.github.casl0.jvncli.core.model.Vendor
 import com.github.casl0.jvncli.core.model.VendorList
 import com.github.casl0.jvncli.core.model.VulnDetail
@@ -28,6 +32,8 @@ import com.github.casl0.jvncli.core.network.model.JvnStatus
 import com.github.casl0.jvncli.core.network.model.ProductEntry
 import com.github.casl0.jvncli.core.network.model.RelatedItem
 import com.github.casl0.jvncli.core.network.model.SecItem
+import com.github.casl0.jvncli.core.network.model.StatisticsResult
+import com.github.casl0.jvncli.core.network.model.StatisticsSummary
 import com.github.casl0.jvncli.core.network.model.VendorEntry
 import com.github.casl0.jvncli.core.network.model.VendorResult
 import com.github.casl0.jvncli.core.network.model.VuldefCvss
@@ -165,6 +171,39 @@ internal class JvnDataSourceImpl(private val api: JvnApi) : JvnDataSource {
             },
             statusOf = { it.status },
             onSuccess = { it.toVulnDetailList() },
+        )
+
+    override suspend fun getStatistics(
+        theme: String,
+        feed: String,
+        type: String?,
+        cweId: String?,
+        pid: Int?,
+        cpeName: String?,
+        datePublicStartY: Int?,
+        datePublicStartM: Int?,
+        datePublicEndY: Int?,
+        datePublicEndM: Int?,
+        lang: String?,
+    ): JvnResult<Statistics> =
+        fetch(
+            call = {
+                api.getStatistics(
+                    theme = theme,
+                    feed = feed,
+                    type = type,
+                    cweId = cweId,
+                    pid = pid,
+                    cpeName = cpeName,
+                    datePublicStartY = datePublicStartY,
+                    datePublicStartM = datePublicStartM,
+                    datePublicEndY = datePublicEndY,
+                    datePublicEndM = datePublicEndM,
+                    lang = lang,
+                )
+            },
+            statusOf = { it.status },
+            onSuccess = { it.toStatistics() },
         )
 
     /**
@@ -334,3 +373,26 @@ private fun RelatedItem.toRelatedInfo(): RelatedInfo =
 
 private fun HistoryItem.toHistoryEntry(): HistoryEntry =
     HistoryEntry(historyNo = historyNo, dateTime = dateTime, descriptions = descriptions)
+
+private fun StatisticsResult.toStatistics(): Statistics =
+    Statistics(vulnCount = sumJvnDb?.toStatSummary(), cvssBreakdown = sumCvss?.toStatSummary())
+
+private fun StatisticsSummary.toStatSummary(): StatSummary =
+    StatSummary(
+        total =
+            total?.let {
+                StatTotal(vulinfo = it.vulinfo, vendor = it.vendor, product = it.product)
+            },
+        dataPoints =
+            data.map {
+                StatDataPoint(
+                    date = it.date,
+                    countAll = it.cntAll,
+                    countCritical = it.cntC,
+                    countHigh = it.cntH,
+                    countMedium = it.cntM,
+                    countLow = it.cntL,
+                    countNone = it.cntN,
+                )
+            },
+    )
