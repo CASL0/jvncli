@@ -26,3 +26,6 @@ internal const val DCTERMS_NS = "http://purl.org/dc/terms/"
 
 /** VULDEF の名前空間 (getVulnDetailInfo)。 */
 internal const val VULDEF_NS = "http://jvn.jp/vuldef/"
+
+/** MyJVN の Statistics の名前空間 (getStatistics)。 */
+internal const val STATISTICS_NS = "http://jvndb.jvn.jp/myjvn/Statistics"
