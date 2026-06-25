@@ -1,0 +1,27 @@
+---
+name: Test
+
+on:
+  push:
+
+jobs:
+  test:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup JDK and Gradle
+        uses: ./.github/actions/setup-jdk-gradle
+
+      - name: Run tests and generate coverage report
+        run: ./gradlew :shared:koverXmlReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: shared/build/reports/kover/report.xml
+          fail_ci_if_error: true
