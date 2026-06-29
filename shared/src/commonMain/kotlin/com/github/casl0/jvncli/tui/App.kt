@@ -8,12 +8,12 @@ import com.github.casl0.jvncli.tui.navigation.Screen
 import com.github.casl0.jvncli.tui.navigation.Tab
 import com.github.casl0.jvncli.tui.ui.AlertScreen
 import com.github.casl0.jvncli.tui.ui.TabBar
+import com.github.casl0.jvncli.tui.ui.VulnDetailScreen
 import com.github.casl0.jvncli.tui.ui.VulnListScreen
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.onKeyEvent
 import com.jakewharton.mosaic.modifier.Modifier
 import com.jakewharton.mosaic.ui.Column
-import com.jakewharton.mosaic.ui.Text
 
 private val TabKey = KeyEvent("Tab")
 private val Escape = KeyEvent("Escape")
@@ -56,7 +56,11 @@ internal fun App(presenters: Presenters) {
                     Tab.VULNS -> VulnListScreen(presenters.vulnList, navigator)
                 }
             }
-            is Screen.VulnDetail -> Text("脆弱性詳細ページ (WIP): ${screen.vulnId} — Esc で戻る")
+            is Screen.VulnDetail -> {
+                val presenter =
+                    remember(screen.vulnId) { presenters.vulnDetailFactory(screen.vulnId) }
+                VulnDetailScreen(presenter)
+            }
         }
     }
 }
