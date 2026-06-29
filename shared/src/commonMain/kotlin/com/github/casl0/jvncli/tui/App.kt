@@ -2,9 +2,11 @@ package com.github.casl0.jvncli.tui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.github.casl0.jvncli.presentation.Presenters
 import com.github.casl0.jvncli.tui.navigation.Navigator
 import com.github.casl0.jvncli.tui.navigation.Screen
 import com.github.casl0.jvncli.tui.navigation.Tab
+import com.github.casl0.jvncli.tui.ui.AlertScreen
 import com.github.casl0.jvncli.tui.ui.TabBar
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.onKeyEvent
@@ -19,11 +21,10 @@ private val Escape = KeyEvent("Escape")
 /**
  * TUI のルートコンポーザブル。[Navigator] を1つ保持し、現在画面を出し分ける。
  *
- * Step 2 時点ではナビゲーションの骨組み(タブ切り替え・詳細への push/pop)のみで、各ページの中身はプレースホルダ。 画面固有キーは後続ステップで各 Screen の
- * `onKeyEvent` へ移し、ここはグローバル/ナビ操作に整理する。
+ * 画面固有キー(↑↓ など)は各 Screen の `onKeyEvent` が処理し、未処理キーはここ(App ルート)へ伝播して タブ切り替え・詳細遷移・戻るといったナビ操作になる。
  */
 @Composable
-internal fun App() {
+internal fun App(presenters: Presenters) {
     val navigator = remember { Navigator() }
     Column(
         modifier =
@@ -60,7 +61,7 @@ internal fun App() {
             is Screen.Tabs -> {
                 TabBar(screen.tab)
                 when (screen.tab) {
-                    Tab.ALERTS -> Text("警戒情報ページ (WIP) — Tab で脆弱性情報へ")
+                    Tab.ALERTS -> AlertScreen(presenters.alertList)
                     Tab.VULNS -> Text("脆弱性情報ページ (WIP) — Enter で詳細へ / Tab で警戒情報へ")
                 }
             }

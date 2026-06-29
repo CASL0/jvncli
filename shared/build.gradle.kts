@@ -31,6 +31,7 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.ktor.client.mock)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine) // Presenter テスト: moleculeFlow().test{} の Flow アサーション
         }
     }
 }
