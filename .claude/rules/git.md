@@ -59,6 +59,11 @@ build: Kotlin を 2.x へアップデート
 chore: ktlint フックを追加
 ```
 
+## コミット前のローカル検証
+
+- コミットする前に、手動で `./gradlew spotlessApply`（フォーマット適用）と変更したモジュールのテスト（例: `./gradlew :shared:jvmTest`）を実行し、いずれも通ることを確認してからコミットする。
+- コミットは **bisect しやすい論理単位** で行う（各コミット時点でビルド・テストが通る状態を保つ）。
+
 ## semantic-release
 
 `main` へのマージ時に semantic-release がコミット履歴からバージョンを決定し、自動でリリースする運用を想定する。
