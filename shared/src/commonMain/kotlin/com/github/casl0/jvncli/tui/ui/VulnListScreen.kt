@@ -58,8 +58,12 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
                 if (state.items.isEmpty()) {
                     Text("該当する脆弱性情報はありません")
                 } else {
-                    state.items.forEachIndexed { index, item ->
-                        val marker = if (index == state.cursor) "› " else "  "
+                    ScrollableList(
+                        items = state.items,
+                        cursor = state.cursor,
+                        reservedRows = 4, // 枠(上下2) + カーソル行(1) + タブバー(1)
+                    ) { item, selected ->
+                        val marker = if (selected) "› " else "  "
                         val id = item.id?.let { "$it " } ?: ""
                         Text("$marker$id${item.title}")
                     }

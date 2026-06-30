@@ -47,8 +47,12 @@ internal fun AlertScreen(presenter: AlertListPresenter) {
                 if (state.alerts.isEmpty()) {
                     Text("該当する警戒情報はありません")
                 } else {
-                    state.alerts.forEachIndexed { index, alert ->
-                        val marker = if (index == state.cursor) "› " else "  "
+                    ScrollableList(
+                        items = state.alerts,
+                        cursor = state.cursor,
+                        reservedRows = 4, // 枠(上下2) + カーソル行(1) + タブバー(1)
+                    ) { alert, selected ->
+                        val marker = if (selected) "› " else "  "
                         val severity = alert.severityLabel?.let { "[$it] " } ?: ""
                         Text("$marker$severity${alert.title}")
                     }
