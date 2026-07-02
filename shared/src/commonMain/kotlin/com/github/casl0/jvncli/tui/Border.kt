@@ -33,21 +33,40 @@ internal fun contentHeight(): Int = (LocalTerminalState.current.size.rows - 3).c
 
 private object BorderModifier : DrawModifier {
     override fun ContentDrawScope.draw() {
-        val inner = (width - 2).coerceAtLeast(0)
-        drawText(string = "┌", row = 0, column = 0, foreground = Color.Unspecified)
-        drawText(string = "┐", row = 0, column = width - 1, foreground = Color.Unspecified)
-        drawText(string = "└", row = height - 1, column = 0, foreground = Color.Unspecified)
-        drawText(string = "┘", row = height - 1, column = width - 1, foreground = Color.Unspecified)
-        drawText(string = "─".repeat(inner), row = 0, column = 1, foreground = Color.Unspecified)
-        drawText(
-            string = "─".repeat(inner),
-            row = height - 1,
-            column = 1,
-            foreground = Color.Unspecified,
-        )
-        for (row in 1..height - 2) {
-            drawText(string = "│", row = row, column = 0, foreground = Color.Unspecified)
-            drawText(string = "│", row = row, column = width - 1, foreground = Color.Unspecified)
+        // 初期フレーム等でサイズが 0〜1 のときに枠自身が範囲外へ描画して落ちないようガードする
+        // (枠は 2x2 以上でしか描けない)。
+        if (width >= 2 && height >= 2) {
+            val inner = width - 2
+            drawText(string = "┌", row = 0, column = 0, foreground = Color.Unspecified)
+            drawText(string = "┐", row = 0, column = width - 1, foreground = Color.Unspecified)
+            drawText(string = "└", row = height - 1, column = 0, foreground = Color.Unspecified)
+            drawText(
+                string = "┘",
+                row = height - 1,
+                column = width - 1,
+                foreground = Color.Unspecified,
+            )
+            drawText(
+                string = "─".repeat(inner),
+                row = 0,
+                column = 1,
+                foreground = Color.Unspecified,
+            )
+            drawText(
+                string = "─".repeat(inner),
+                row = height - 1,
+                column = 1,
+                foreground = Color.Unspecified,
+            )
+            for (row in 1..height - 2) {
+                drawText(string = "│", row = row, column = 0, foreground = Color.Unspecified)
+                drawText(
+                    string = "│",
+                    row = row,
+                    column = width - 1,
+                    foreground = Color.Unspecified,
+                )
+            }
         }
         drawContent()
     }
