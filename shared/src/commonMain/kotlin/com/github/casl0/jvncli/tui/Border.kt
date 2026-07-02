@@ -24,6 +24,13 @@ import com.jakewharton.mosaic.ui.Color
 @Composable
 internal fun contentWidth(): Int = (LocalTerminalState.current.size.columns - 2).coerceAtLeast(0)
 
+/**
+ * [border] の内側でコンテンツを描画できる行数。端末の行数から上下の枠 1 行ずつと、末尾のカーソル行 1 行を引いた値を返す([App] がルート高さを `rows - 1`
+ * にしているため)。
+ */
+@Composable
+internal fun contentHeight(): Int = (LocalTerminalState.current.size.rows - 3).coerceAtLeast(1)
+
 private object BorderModifier : DrawModifier {
     override fun ContentDrawScope.draw() {
         val inner = (width - 2).coerceAtLeast(0)
