@@ -1,6 +1,8 @@
 package com.github.casl0.jvncli.tui
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import com.jakewharton.mosaic.LocalTerminalState
 import com.jakewharton.mosaic.layout.ContentDrawScope
 import com.jakewharton.mosaic.layout.DrawModifier
 import com.jakewharton.mosaic.layout.padding
@@ -13,6 +15,14 @@ import com.jakewharton.mosaic.ui.Color
  * Mosaic にはボーダー用のモディファイアが無いため、罫線文字を [DrawModifier] で自前描画する。
  */
 @Stable internal fun Modifier.border(): Modifier = this.then(BorderModifier).padding(all = 1)
+
+/**
+ * [border] の内側でテキストを描画できる最大表示幅。端末幅から左右の枠 1 桁ずつを引いた値を返す。
+ *
+ * Mosaic はクリップも折り返しもしないため、各テキストはこの幅で [ellipsize] してから描画する。
+ */
+@Composable
+internal fun contentWidth(): Int = (LocalTerminalState.current.size.columns - 2).coerceAtLeast(0)
 
 private object BorderModifier : DrawModifier {
     override fun ContentDrawScope.draw() {

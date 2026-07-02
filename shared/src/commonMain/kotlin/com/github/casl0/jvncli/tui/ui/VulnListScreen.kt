@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import com.github.casl0.jvncli.presentation.event.VulnListEvent
 import com.github.casl0.jvncli.presentation.presenter.VulnListPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
+import com.github.casl0.jvncli.tui.contentWidth
+import com.github.casl0.jvncli.tui.ellipsize
 import com.github.casl0.jvncli.tui.navigation.Navigator
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.onKeyEvent
@@ -22,6 +24,7 @@ private val ReloadKey = KeyEvent("r")
 @Composable
 internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) {
     val state by presenter.uiState.collectAsState()
+    val width = contentWidth()
     Column(
         modifier =
             Modifier.onKeyEvent { key ->
@@ -53,7 +56,7 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
     ) {
         when (state.phase) {
             LoadPhase.Loading -> Text("読み込み中…")
-            LoadPhase.Error -> Text(state.error ?: "エラーが発生しました")
+            LoadPhase.Error -> Text((state.error ?: "エラーが発生しました").ellipsize(width))
             LoadPhase.Loaded ->
                 if (state.items.isEmpty()) {
                     Text("該当する脆弱性情報はありません")
@@ -65,7 +68,7 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
                     ) { item, selected ->
                         val marker = if (selected) "› " else "  "
                         val id = item.id?.let { "$it " } ?: ""
-                        Text("$marker$id${item.title}")
+                        Text("$marker$id${item.title}".ellipsize(width))
                     }
                 }
         }

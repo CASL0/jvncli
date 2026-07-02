@@ -6,6 +6,8 @@ import androidx.compose.runtime.getValue
 import com.github.casl0.jvncli.presentation.event.AlertEvent
 import com.github.casl0.jvncli.presentation.presenter.AlertListPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
+import com.github.casl0.jvncli.tui.contentWidth
+import com.github.casl0.jvncli.tui.ellipsize
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.onKeyEvent
 import com.jakewharton.mosaic.modifier.Modifier
@@ -20,6 +22,7 @@ private val ReloadKey = KeyEvent("r")
 @Composable
 internal fun AlertScreen(presenter: AlertListPresenter) {
     val state by presenter.uiState.collectAsState()
+    val width = contentWidth()
     Column(
         modifier =
             Modifier.onKeyEvent { key ->
@@ -42,7 +45,7 @@ internal fun AlertScreen(presenter: AlertListPresenter) {
     ) {
         when (state.phase) {
             LoadPhase.Loading -> Text("読み込み中…")
-            LoadPhase.Error -> Text(state.error ?: "エラーが発生しました")
+            LoadPhase.Error -> Text((state.error ?: "エラーが発生しました").ellipsize(width))
             LoadPhase.Loaded ->
                 if (state.alerts.isEmpty()) {
                     Text("該当する警戒情報はありません")
@@ -54,7 +57,7 @@ internal fun AlertScreen(presenter: AlertListPresenter) {
                     ) { alert, selected ->
                         val marker = if (selected) "› " else "  "
                         val severity = alert.severityLabel?.let { "[$it] " } ?: ""
-                        Text("$marker$severity${alert.title}")
+                        Text("$marker$severity${alert.title}".ellipsize(width))
                     }
                 }
         }
