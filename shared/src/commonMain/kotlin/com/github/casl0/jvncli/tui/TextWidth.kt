@@ -77,3 +77,41 @@ internal fun String.ellipsize(maxWidth: Int, ellipsis: String = "…"): String {
     }
     return substring(0, i) + ellipsis
 }
+
+/**
+ * この文字列を、各行の表示幅が [maxWidth] を超えないよう複数行へ折り返す。
+ *
+ * 既存の改行 (`\n`) はそのまま行区切りとして扱い、幅を超える行は表示幅基準で分割する(単語境界では なく表示幅で折るため日本語にも対応する)。空行は空文字の 1
+ * 要素として残す。[maxWidth] が 0 以下、 または全角 1 文字が入らない幅では、はみ出さないよう末尾を [ellipsize] で切り詰める。
+ */
+internal fun String.wrapToWidth(maxWidth: Int): List<String> {
+    if (maxWidth <= 0) return emptyList()
+    val lines = mutableListOf<String>()
+    for (paragraph in split("\n")) {
+        var lineStart = 0
+        var used = 0
+        var i = 0
+        while (i < paragraph.length) {
+            val high = paragraph[i]
+            val isPair =
+                high.isHighSurrogate() &&
+                    i + 1 < paragraph.length &&
+                    paragraph[i + 1].isLowSurrogate()
+            val codePoint =
+                if (isPair)
+                    0x10000 + ((high.code - 0xD800) shl 10) + (paragraph[i + 1].code - 0xDC00)
+                else high.code
+            val width = codePointWidth(codePoint)
+            if (used > 0 && used + width > maxWidth) {
+                lines.add(paragraph.substring(lineStart, i).ellipsize(maxWidth))
+                lineStart = i
+                used = 0
+            }
+            used += width
+            i += if (isPair) 2 else 1
+        }
+        // 幅より広い単一グリフ(例: 全角 1 文字に対し maxWidth=1)でもはみ出さないよう最後に切り詰める。
+        lines.add(paragraph.substring(lineStart).ellipsize(maxWidth))
+    }
+    return lines
+}

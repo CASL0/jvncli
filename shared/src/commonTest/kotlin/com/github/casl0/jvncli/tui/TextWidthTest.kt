@@ -49,4 +49,40 @@ class TextWidthTest {
     fun `ellipsize_省略記号すら収まらないなら空文字を返す`() {
         assertEquals("", "hello".ellipsize(1, ellipsis = "。"))
     }
+
+    @Test
+    fun `wrapToWidth_収まる場合は1行のまま`() {
+        assertEquals(listOf("hello"), "hello".wrapToWidth(10))
+    }
+
+    @Test
+    fun `wrapToWidth_半角を表示幅で折り返す`() {
+        assertEquals(listOf("abc", "def"), "abcdef".wrapToWidth(3))
+    }
+
+    @Test
+    fun `wrapToWidth_全角を表示幅で折り返す`() {
+        assertEquals(listOf("あい", "うえ"), "あいうえ".wrapToWidth(4))
+    }
+
+    @Test
+    fun `wrapToWidth_既存の改行を行区切りとして残す`() {
+        assertEquals(listOf("ab", "cd"), "ab\ncd".wrapToWidth(10))
+    }
+
+    @Test
+    fun `wrapToWidth_空行を空文字として残す`() {
+        assertEquals(listOf("a", "", "b"), "a\n\nb".wrapToWidth(10))
+    }
+
+    @Test
+    fun `wrapToWidth_各行が表示幅を超えない`() {
+        val wrapped = "あいうえおかきくけこ".wrapToWidth(5)
+        assertEquals(true, wrapped.all { it.displayWidth() <= 5 })
+    }
+
+    @Test
+    fun `wrapToWidth_上限が0以下なら空リスト`() {
+        assertEquals(emptyList(), "hello".wrapToWidth(0))
+    }
 }
