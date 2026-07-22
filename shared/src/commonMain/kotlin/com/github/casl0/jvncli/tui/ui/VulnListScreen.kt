@@ -6,6 +6,9 @@ import androidx.compose.runtime.getValue
 import com.github.casl0.jvncli.presentation.event.VulnListEvent
 import com.github.casl0.jvncli.presentation.presenter.VulnListPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
+import com.github.casl0.jvncli.tui.BORDER_SIZE
+import com.github.casl0.jvncli.tui.CURSOR_ROW_HEIGHT
+import com.github.casl0.jvncli.tui.TAB_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
 import com.github.casl0.jvncli.tui.navigation.Navigator
@@ -64,7 +67,7 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
                     ScrollableList(
                         items = state.items,
                         cursor = state.cursor,
-                        reservedRows = 4, // 枠(上下2) + カーソル行(1) + タブバー(1)
+                        reservedRows = BORDER_SIZE * 2 + CURSOR_ROW_HEIGHT + TAB_BAR_HEIGHT,
                     ) { item, selected ->
                         val marker = if (selected) "› " else "  "
                         val id = item.id?.let { "$it " } ?: ""

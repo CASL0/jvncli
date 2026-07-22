@@ -10,6 +10,7 @@ import com.github.casl0.jvncli.presentation.event.VulnDetailEvent
 import com.github.casl0.jvncli.presentation.presenter.VulnDetailPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
 import com.github.casl0.jvncli.presentation.state.VulnDetailUiState
+import com.github.casl0.jvncli.tui.SCROLL_INDICATOR_HEIGHT
 import com.github.casl0.jvncli.tui.contentHeight
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
@@ -26,6 +27,9 @@ private val ArrowDown = KeyEvent("ArrowDown")
 private val ReloadKey = KeyEvent("r")
 
 private const val FOOTER = "[Esc] 一覧へ戻る  [r] 再読み込み"
+
+/** 下部に常に確保するフッター(空行 + 操作説明[FOOTER])の高さ。 */
+private const val FOOTER_HEIGHT = 2
 
 /** 枠内へ描画する 1 行。表示幅は [contentWidth] 以内に整形済みであること。 */
 private data class DetailLine(val text: String, val style: TextStyle = TextStyle.Empty)
@@ -44,10 +48,11 @@ internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
 
     val lines = remember(state, width) { buildLines(state, width) }
     // フッター(空行 + 操作説明)の 2 行を常に確保し、残りを本文の表示枠にする。
-    val bodyBudget = (height - 2).coerceAtLeast(1)
+    val bodyBudget = (height - FOOTER_HEIGHT).coerceAtLeast(1)
     val scrollable = lines.size > bodyBudget
     // スクロール時は位置インジケータ 1 行ぶんを確保する。
-    val visible = if (scrollable) (bodyBudget - 1).coerceAtLeast(1) else bodyBudget
+    val visible =
+        if (scrollable) (bodyBudget - SCROLL_INDICATOR_HEIGHT).coerceAtLeast(1) else bodyBudget
     val maxOffset = (lines.size - visible).coerceAtLeast(0)
 
     var offset by remember(lines) { mutableStateOf(0) }

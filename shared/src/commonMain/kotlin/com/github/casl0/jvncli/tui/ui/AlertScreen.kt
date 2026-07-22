@@ -6,6 +6,9 @@ import androidx.compose.runtime.getValue
 import com.github.casl0.jvncli.presentation.event.AlertEvent
 import com.github.casl0.jvncli.presentation.presenter.AlertListPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
+import com.github.casl0.jvncli.tui.BORDER_SIZE
+import com.github.casl0.jvncli.tui.CURSOR_ROW_HEIGHT
+import com.github.casl0.jvncli.tui.TAB_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
 import com.jakewharton.mosaic.layout.KeyEvent
@@ -53,7 +56,7 @@ internal fun AlertScreen(presenter: AlertListPresenter) {
                     ScrollableList(
                         items = state.alerts,
                         cursor = state.cursor,
-                        reservedRows = 4, // 枠(上下2) + カーソル行(1) + タブバー(1)
+                        reservedRows = BORDER_SIZE * 2 + CURSOR_ROW_HEIGHT + TAB_BAR_HEIGHT,
                     ) { alert, selected ->
                         val marker = if (selected) "› " else "  "
                         val severity = alert.severityLabel?.let { "[$it] " } ?: ""

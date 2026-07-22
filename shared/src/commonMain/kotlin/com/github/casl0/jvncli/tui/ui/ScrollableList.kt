@@ -1,6 +1,7 @@
 package com.github.casl0.jvncli.tui.ui
 
 import androidx.compose.runtime.Composable
+import com.github.casl0.jvncli.tui.SCROLL_INDICATOR_HEIGHT
 import com.jakewharton.mosaic.LocalTerminalState
 import com.jakewharton.mosaic.ui.Column
 import com.jakewharton.mosaic.ui.Text
@@ -26,7 +27,7 @@ internal fun <T> ScrollableList(
     val budget = (rows - reservedRows).coerceAtLeast(1)
     val scrollable = items.size > budget
     // スクロール時は位置インジケータ1行ぶんを確保する。
-    val visible = if (scrollable) (budget - 1).coerceAtLeast(1) else budget
+    val visible = if (scrollable) (budget - SCROLL_INDICATOR_HEIGHT).coerceAtLeast(1) else budget
     val start =
         when {
             items.size <= visible -> 0

@@ -34,7 +34,7 @@ internal fun App(presenters: Presenters) {
     Column(
         modifier =
             Modifier.width(terminal.size.columns)
-                .height((terminal.size.rows - 1).coerceAtLeast(1))
+                .height((terminal.size.rows - CURSOR_ROW_HEIGHT).coerceAtLeast(1))
                 .border()
                 .onKeyEvent { key ->
                     when (navigator.current) {
