@@ -1,3 +1,9 @@
+---
+description: Kotlin のコーディングスタイル (命名・構造・イディオム・null 許容)
+paths:
+  - "**/*.kt"
+---
+
 # Kotlin Coding Style Rules
 
 [Kotlin 公式コーディング規約](https://kotlinlang.org/docs/coding-conventions.html) に準拠する。
