@@ -25,6 +25,12 @@ Gradle ラッパー (`./gradlew`) を使う。Windows でも Bash ツールか�
 - CI (`.github/workflows/`) は push 時に `spotlessCheck` と `:shared:koverXmlReport` を実行する。**コミット前に `spotlessApply` とテストをローカルで通すこと** (詳細は [.claude/rules/git.md](.claude/rules/git.md))。
 - テストとカバレッジ計測は `shared` モジュールに集約されている (`app` はエントリポイントと HTTP エンジン選択のみ)。
 
+### Bash 実行の注意
+
+- **Bash ツールは 1 コマンドずつ実行する。`;` / `&&` / `|` で複数コマンドを連結しない**。連結すると全体が 1 つの複合コマンド扱いになり、許可リスト（settings.json の `permissions.allow`）のプレフィックスマッチが成立せず、許可済みコマンドでも確認プロンプトが出る。
+- 複数の情報を確認したいときは、コマンドを分けてそれぞれ実行する（並列実行は可）。
+- ファイル一覧・検索・閲覧は `ls`/`grep`/`cat` ではなく専用の Glob/Grep/Read ツールを優先する。
+
 ## モジュール構成
 
 - **`:shared`** — 再利用ライブラリ。ネットワーク・データ変換・状態管理・TUI 描画のすべてを含む。公開 API の可視性・型を明示し、実装詳細は `internal` にする。
