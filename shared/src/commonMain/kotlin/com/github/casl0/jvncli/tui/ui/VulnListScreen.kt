@@ -8,6 +8,7 @@ import com.github.casl0.jvncli.presentation.presenter.VulnListPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
 import com.github.casl0.jvncli.tui.BORDER_SIZE
 import com.github.casl0.jvncli.tui.CURSOR_ROW_HEIGHT
+import com.github.casl0.jvncli.tui.KEY_HINT_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.TAB_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
@@ -22,6 +23,9 @@ private val ArrowUp = KeyEvent("ArrowUp")
 private val ArrowDown = KeyEvent("ArrowDown")
 private val Enter = KeyEvent("Enter")
 private val ReloadKey = KeyEvent("r")
+
+/** この画面で使えるキーの説明。タブ切替(Tab)の実処理は親(App)だが、利用者から見て使えるキーなので含める。 */
+internal const val VULN_LIST_KEY_HINT = "[↑↓] 移動  [Enter] 詳細  [r] 再読込  [Tab] タブ切替"
 
 /** 脆弱性概要の一覧を描画する。↑↓ でカーソル移動・r で再読み込み・Enter で選択中の項目の詳細へ遷移する。 未処理キーは false を返して親(App)へ伝播させる。 */
 @Composable
@@ -67,7 +71,11 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
                     ScrollableList(
                         items = state.items,
                         cursor = state.cursor,
-                        reservedRows = BORDER_SIZE * 2 + CURSOR_ROW_HEIGHT + TAB_BAR_HEIGHT,
+                        reservedRows =
+                            BORDER_SIZE * 2 +
+                                CURSOR_ROW_HEIGHT +
+                                TAB_BAR_HEIGHT +
+                                KEY_HINT_BAR_HEIGHT,
                     ) { item, selected ->
                         val marker = if (selected) "› " else "  "
                         val id = item.id?.let { "$it " } ?: ""
@@ -75,5 +83,6 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
                     }
                 }
         }
+        KeyHintBar(VULN_LIST_KEY_HINT)
     }
 }
