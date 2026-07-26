@@ -23,6 +23,9 @@ internal const val TAB_BAR_HEIGHT = 1
 /** スクロール時に下部へ表示する位置インジケータの高さ。 */
 internal const val SCROLL_INDICATOR_HEIGHT = 1
 
+/** 画面下部のキーヒント(KeyHintBar)が占める高さ(区切り罫線 1 行 + ヒント文言 1 行)。 */
+internal const val KEY_HINT_BAR_HEIGHT = 2
+
 /**
  * コンテンツ全体を罫線で囲む枠を描く。内側に枠線 1 辺ぶんの padding([BORDER_SIZE])を確保し、その内側に子を描画する。
  *
