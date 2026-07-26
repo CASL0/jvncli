@@ -50,4 +50,9 @@ class KeyHintBarTest {
         assertEquals(listOf("", ""), keyHintLines("[r] 再読込", 0))
         assertEquals(listOf("", ""), keyHintLines("[r] 再読込", -3))
     }
+
+    @Test
+    fun `警戒情報タブは移動と再読込とタブ切替を案内する`() {
+        assertEquals("[↑↓] 移動  [r] 再読込  [Tab] タブ切替", ALERT_KEY_HINT)
+    }
 }
