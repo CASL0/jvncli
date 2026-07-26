@@ -81,8 +81,9 @@ internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
         for (i in start until end) {
             Text(lines[i].text, textStyle = lines[i].style)
         }
+        // ↑↓ の案内は KeyHintBar が担うため、ここは位置だけを一覧画面(ScrollableList)と同じ体裁で示す。
         if (scrollable) {
-            Text("($end/${lines.size})  ↑↓ でスクロール".ellipsize(width), textStyle = TextStyle.Dim)
+            Text("($end/${lines.size})".ellipsize(width), textStyle = TextStyle.Dim)
         }
         KeyHintBar(VULN_DETAIL_KEY_HINT)
     }
