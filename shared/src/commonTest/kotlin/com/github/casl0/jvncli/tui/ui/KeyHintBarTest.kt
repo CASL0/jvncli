@@ -60,4 +60,9 @@ class KeyHintBarTest {
     fun `脆弱性情報タブは移動と詳細と再読込とタブ切替を案内する`() {
         assertEquals("[↑↓] 移動  [Enter] 詳細  [r] 再読込  [Tab] タブ切替", VULN_LIST_KEY_HINT)
     }
+
+    @Test
+    fun `脆弱性詳細はスクロールと再読込と戻るを案内する`() {
+        assertEquals("[↑↓] スクロール  [r] 再読込  [Esc] 戻る", VULN_DETAIL_KEY_HINT)
+    }
 }
