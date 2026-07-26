@@ -62,7 +62,12 @@ class KeyHintBarTest {
     }
 
     @Test
-    fun `脆弱性詳細はスクロールと再読込と戻るを案内する`() {
-        assertEquals("[↑↓] スクロール  [r] 再読込  [Esc] 戻る", VULN_DETAIL_KEY_HINT)
+    fun `脆弱性詳細はスクロールできるとき上下キーも案内する`() {
+        assertEquals("[↑↓] スクロール  [r] 再読込  [Esc] 戻る", vulnDetailKeyHint(scrollable = true))
+    }
+
+    @Test
+    fun `脆弱性詳細は本文が収まるとき上下キーを案内しない`() {
+        assertEquals("[r] 再読込  [Esc] 戻る", vulnDetailKeyHint(scrollable = false))
     }
 }

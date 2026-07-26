@@ -27,8 +27,12 @@ private val ArrowUp = KeyEvent("ArrowUp")
 private val ArrowDown = KeyEvent("ArrowDown")
 private val ReloadKey = KeyEvent("r")
 
-/** この画面で使えるキーの説明。戻る(Esc)の実処理は親(App)だが、利用者から見て使えるキーなので含める。 */
-internal const val VULN_DETAIL_KEY_HINT = "[↑↓] スクロール  [r] 再読込  [Esc] 戻る"
+/** 本文の長さに関わらず使えるキーの説明。戻る(Esc)の実処理は親(App)だが、利用者から見て使えるキーなので含める。 */
+private const val BASE_KEY_HINT = "[r] 再読込  [Esc] 戻る"
+
+/** この画面で使えるキーの説明。本文が収まりきっていると ↑↓ を押しても動かないため、[scrollable] のときだけ案内に含める。 */
+internal fun vulnDetailKeyHint(scrollable: Boolean): String =
+    if (scrollable) "[↑↓] スクロール  $BASE_KEY_HINT" else BASE_KEY_HINT
 
 /** 枠内へ描画する 1 行。表示幅は [contentWidth] 以内に整形済みであること。 */
 private data class DetailLine(val text: String, val style: TextStyle = TextStyle.Empty)
@@ -81,11 +85,10 @@ internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
         for (i in start until end) {
             Text(lines[i].text, textStyle = lines[i].style)
         }
-        // ↑↓ の案内は KeyHintBar が担うため、ここは位置だけを一覧画面(ScrollableList)と同じ体裁で示す。
         if (scrollable) {
             Text("($end/${lines.size})".ellipsize(width), textStyle = TextStyle.Dim)
         }
-        KeyHintBar(VULN_DETAIL_KEY_HINT)
+        KeyHintBar(vulnDetailKeyHint(scrollable))
     }
 }
 
