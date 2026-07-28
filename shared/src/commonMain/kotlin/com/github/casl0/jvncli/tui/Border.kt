@@ -23,6 +23,9 @@ internal const val TAB_BAR_HEIGHT = 1
 /** スクロール時に下部へ表示する位置インジケータの高さ。 */
 internal const val SCROLL_INDICATOR_HEIGHT = 1
 
+/** 画面下部のキーヒント(KeyHintBar)が占める高さ(区切り罫線 1 行 + ヒント文言 1 行)。 */
+internal const val KEY_HINT_BAR_HEIGHT = 2
+
 /**
  * コンテンツ全体を罫線で囲む枠を描く。内側に枠線 1 辺ぶんの padding([BORDER_SIZE])を確保し、その内側に子を描画する。
  *
@@ -48,6 +51,15 @@ internal fun contentWidth(): Int =
 @Composable
 internal fun contentHeight(): Int =
     (LocalTerminalState.current.size.rows - BORDER_SIZE * 2 - CURSOR_ROW_HEIGHT).coerceAtLeast(1)
+
+/**
+ * キーヒント([KEY_HINT_BAR_HEIGHT])を除いた、本文や一覧に使える行数。[aboveRows] にはタブバーなど、この画面より上で 消費する行数を渡す。
+ *
+ * 端末を広げても内容が短いままだとキーヒントが枠の途中に浮くため、呼び出し側はこの高さを固定枠として確保し、余りを 埋めたうえで最下部にキーヒントを置く。
+ */
+@Composable
+internal fun bodyHeight(aboveRows: Int = 0): Int =
+    (contentHeight() - aboveRows - KEY_HINT_BAR_HEIGHT).coerceAtLeast(1)
 
 private object BorderModifier : DrawModifier {
     override fun ContentDrawScope.draw() {

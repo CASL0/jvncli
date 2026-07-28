@@ -11,11 +11,12 @@ import com.github.casl0.jvncli.presentation.presenter.VulnDetailPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
 import com.github.casl0.jvncli.presentation.state.VulnDetailUiState
 import com.github.casl0.jvncli.tui.SCROLL_INDICATOR_HEIGHT
-import com.github.casl0.jvncli.tui.contentHeight
+import com.github.casl0.jvncli.tui.bodyHeight
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
 import com.github.casl0.jvncli.tui.wrapToWidth
 import com.jakewharton.mosaic.layout.KeyEvent
+import com.jakewharton.mosaic.layout.height
 import com.jakewharton.mosaic.layout.onKeyEvent
 import com.jakewharton.mosaic.modifier.Modifier
 import com.jakewharton.mosaic.ui.Column
@@ -26,10 +27,12 @@ private val ArrowUp = KeyEvent("ArrowUp")
 private val ArrowDown = KeyEvent("ArrowDown")
 private val ReloadKey = KeyEvent("r")
 
-private const val FOOTER = "[Esc] 一覧へ戻る  [r] 再読み込み"
+/** 本文の長さに関わらず使えるキーの説明。戻る(Esc)の実処理は親(App)だが、利用者から見て使えるキーなので含める。 */
+private const val BASE_KEY_HINT = "[r] 再読込  [Esc] 戻る"
 
-/** 下部に常に確保するフッター(空行 + 操作説明[FOOTER])の高さ。 */
-private const val FOOTER_HEIGHT = 2
+/** この画面で使えるキーの説明。本文が収まりきっていると ↑↓ を押しても動かないため、[scrollable] のときだけ案内に含める。 */
+internal fun vulnDetailKeyHint(scrollable: Boolean): String =
+    if (scrollable) "[↑↓] スクロール  $BASE_KEY_HINT" else BASE_KEY_HINT
 
 /** 枠内へ描画する 1 行。表示幅は [contentWidth] 以内に整形済みであること。 */
 private data class DetailLine(val text: String, val style: TextStyle = TextStyle.Empty)
@@ -38,17 +41,16 @@ private data class DetailLine(val text: String, val style: TextStyle = TextStyle
  * 脆弱性詳細を描画する。r で再読み込み、↑↓ で本文をスクロール。戻る(Esc)は App ルートが処理する。
  *
  * Mosaic は折り返しもクリップもしないため、内容は表示幅([contentWidth])で折り返した行の並びに変換し、
- * 端末の高さ([contentHeight])に収まるぶんだけを窓化して描画する。フッターの操作説明は常に下部へ残す。
+ * 本文枠([bodyHeight])に収まるぶんだけを窓化して描画する。キーヒント([KeyHintBar])は常に最下部へ残す。
  */
 @Composable
 internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
     val state by presenter.uiState.collectAsState()
     val width = contentWidth()
-    val height = contentHeight()
+    // キーヒント(区切り罫線 + 文言)を除いた残りが本文の表示枠。
+    val bodyBudget = bodyHeight()
 
     val lines = remember(state, width) { buildLines(state, width) }
-    // フッター(空行 + 操作説明)の 2 行を常に確保し、残りを本文の表示枠にする。
-    val bodyBudget = (height - FOOTER_HEIGHT).coerceAtLeast(1)
     val scrollable = lines.size > bodyBudget
     // スクロール時は位置インジケータ 1 行ぶんを確保する。
     val visible =
@@ -79,14 +81,16 @@ internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
                 }
             }
     ) {
-        for (i in start until end) {
-            Text(lines[i].text, textStyle = lines[i].style)
+        // 本文が短くてもキーヒントが最下部に残るよう、本文側の高さを固定して残りを埋める。
+        Column(modifier = Modifier.height(bodyBudget)) {
+            for (i in start until end) {
+                Text(lines[i].text, textStyle = lines[i].style)
+            }
+            if (scrollable) {
+                Text("($end/${lines.size})".ellipsize(width), textStyle = TextStyle.Dim)
+            }
         }
-        if (scrollable) {
-            Text("($end/${lines.size})  ↑↓ でスクロール".ellipsize(width), textStyle = TextStyle.Dim)
-        }
-        Text("")
-        Text(FOOTER.ellipsize(width))
+        KeyHintBar(vulnDetailKeyHint(scrollable))
     }
 }
 
