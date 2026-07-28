@@ -9,11 +9,15 @@ import com.github.casl0.jvncli.presentation.state.LoadPhase
 import com.github.casl0.jvncli.tui.BORDER_SIZE
 import com.github.casl0.jvncli.tui.CURSOR_ROW_HEIGHT
 import com.github.casl0.jvncli.tui.KEY_HINT_BAR_HEIGHT
+import com.github.casl0.jvncli.tui.SeverityLevel
 import com.github.casl0.jvncli.tui.TAB_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.bodyHeight
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
+import com.github.casl0.jvncli.tui.highestScored
 import com.github.casl0.jvncli.tui.navigation.Navigator
+import com.github.casl0.jvncli.tui.severityBadge
+import com.github.casl0.jvncli.tui.severityLevel
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.height
 import com.jakewharton.mosaic.layout.onKeyEvent
@@ -81,9 +85,16 @@ internal fun VulnListScreen(presenter: VulnListPresenter, navigator: Navigator) 
                                     TAB_BAR_HEIGHT +
                                     KEY_HINT_BAR_HEIGHT,
                         ) { item, selected ->
-                            val marker = if (selected) "› " else "  "
+                            // 複数バージョンの CVSS があるときはバッジに使う 1 件(最大スコア)へ絞る。
+                            val cvss = item.cvssScores.highestScored()
                             val id = item.id?.let { "$it " } ?: ""
-                            Text("$marker$id${item.title}".ellipsize(width))
+                            SeverityRow(
+                                badge = severityBadge(cvss),
+                                body = "$id${item.title}",
+                                level = cvss?.severityLevel() ?: SeverityLevel.NONE,
+                                selected = selected,
+                                width = width,
+                            )
                         }
                     }
             }

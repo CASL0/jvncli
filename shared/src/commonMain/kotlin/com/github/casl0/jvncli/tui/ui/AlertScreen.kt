@@ -13,6 +13,7 @@ import com.github.casl0.jvncli.tui.TAB_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.bodyHeight
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
+import com.github.casl0.jvncli.tui.severityLevelOfTerm
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.height
 import com.jakewharton.mosaic.layout.onKeyEvent
@@ -70,9 +71,13 @@ internal fun AlertScreen(presenter: AlertListPresenter) {
                                     TAB_BAR_HEIGHT +
                                     KEY_HINT_BAR_HEIGHT,
                         ) { alert, selected ->
-                            val marker = if (selected) "› " else "  "
-                            val severity = alert.severityLabel?.let { "[$it] " } ?: ""
-                            Text("$marker$severity${alert.title}".ellipsize(width))
+                            SeverityRow(
+                                badge = alert.severityLabel?.let { "[$it]" },
+                                body = alert.title,
+                                level = severityLevelOfTerm(alert.severityTerm),
+                                selected = selected,
+                                width = width,
+                            )
                         }
                     }
             }
