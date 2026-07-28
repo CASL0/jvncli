@@ -10,9 +10,11 @@ import com.github.casl0.jvncli.tui.BORDER_SIZE
 import com.github.casl0.jvncli.tui.CURSOR_ROW_HEIGHT
 import com.github.casl0.jvncli.tui.KEY_HINT_BAR_HEIGHT
 import com.github.casl0.jvncli.tui.TAB_BAR_HEIGHT
+import com.github.casl0.jvncli.tui.bodyHeight
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
 import com.jakewharton.mosaic.layout.KeyEvent
+import com.jakewharton.mosaic.layout.height
 import com.jakewharton.mosaic.layout.onKeyEvent
 import com.jakewharton.mosaic.modifier.Modifier
 import com.jakewharton.mosaic.ui.Column
@@ -50,27 +52,30 @@ internal fun AlertScreen(presenter: AlertListPresenter) {
                 }
             }
     ) {
-        when (state.phase) {
-            LoadPhase.Loading -> Text("読み込み中…")
-            LoadPhase.Error -> Text((state.error ?: "エラーが発生しました").ellipsize(width))
-            LoadPhase.Loaded ->
-                if (state.alerts.isEmpty()) {
-                    Text("該当する警戒情報はありません")
-                } else {
-                    ScrollableList(
-                        items = state.alerts,
-                        cursor = state.cursor,
-                        reservedRows =
-                            BORDER_SIZE * 2 +
-                                CURSOR_ROW_HEIGHT +
-                                TAB_BAR_HEIGHT +
-                                KEY_HINT_BAR_HEIGHT,
-                    ) { alert, selected ->
-                        val marker = if (selected) "› " else "  "
-                        val severity = alert.severityLabel?.let { "[$it] " } ?: ""
-                        Text("$marker$severity${alert.title}".ellipsize(width))
+        // 一覧が短くてもキーヒントが最下部に残るよう、一覧側の高さを固定して残りを埋める。
+        Column(modifier = Modifier.height(bodyHeight(TAB_BAR_HEIGHT))) {
+            when (state.phase) {
+                LoadPhase.Loading -> Text("読み込み中…")
+                LoadPhase.Error -> Text((state.error ?: "エラーが発生しました").ellipsize(width))
+                LoadPhase.Loaded ->
+                    if (state.alerts.isEmpty()) {
+                        Text("該当する警戒情報はありません")
+                    } else {
+                        ScrollableList(
+                            items = state.alerts,
+                            cursor = state.cursor,
+                            reservedRows =
+                                BORDER_SIZE * 2 +
+                                    CURSOR_ROW_HEIGHT +
+                                    TAB_BAR_HEIGHT +
+                                    KEY_HINT_BAR_HEIGHT,
+                        ) { alert, selected ->
+                            val marker = if (selected) "› " else "  "
+                            val severity = alert.severityLabel?.let { "[$it] " } ?: ""
+                            Text("$marker$severity${alert.title}".ellipsize(width))
+                        }
                     }
-                }
+            }
         }
         KeyHintBar(ALERT_KEY_HINT)
     }

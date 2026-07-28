@@ -52,6 +52,15 @@ internal fun contentWidth(): Int =
 internal fun contentHeight(): Int =
     (LocalTerminalState.current.size.rows - BORDER_SIZE * 2 - CURSOR_ROW_HEIGHT).coerceAtLeast(1)
 
+/**
+ * キーヒント([KEY_HINT_BAR_HEIGHT])を除いた、本文や一覧に使える行数。[aboveRows] にはタブバーなど、この画面より上で 消費する行数を渡す。
+ *
+ * 端末を広げても内容が短いままだとキーヒントが枠の途中に浮くため、呼び出し側はこの高さを固定枠として確保し、余りを 埋めたうえで最下部にキーヒントを置く。
+ */
+@Composable
+internal fun bodyHeight(aboveRows: Int = 0): Int =
+    (contentHeight() - aboveRows - KEY_HINT_BAR_HEIGHT).coerceAtLeast(1)
+
 private object BorderModifier : DrawModifier {
     override fun ContentDrawScope.draw() {
         // 初期フレーム等でサイズが小さいときに枠自身が範囲外へ描画して落ちないようガードする
