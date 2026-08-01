@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.4.10"
 ksp = "2.3.10"
-ktor = "3.5.0"
+ktor = "3.5.2"
 ktorfit = "2.7.5"
 metro = "1.0.1"
 kover = "0.9.9"
