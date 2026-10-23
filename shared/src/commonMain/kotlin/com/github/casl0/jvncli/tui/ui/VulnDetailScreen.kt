@@ -10,15 +10,20 @@ import com.github.casl0.jvncli.presentation.event.VulnDetailEvent
 import com.github.casl0.jvncli.presentation.presenter.VulnDetailPresenter
 import com.github.casl0.jvncli.presentation.state.LoadPhase
 import com.github.casl0.jvncli.presentation.state.VulnDetailUiState
+import com.github.casl0.jvncli.tui.ERROR_COLOR
 import com.github.casl0.jvncli.tui.SCROLL_INDICATOR_HEIGHT
 import com.github.casl0.jvncli.tui.bodyHeight
 import com.github.casl0.jvncli.tui.contentWidth
 import com.github.casl0.jvncli.tui.ellipsize
+import com.github.casl0.jvncli.tui.severityColor
+import com.github.casl0.jvncli.tui.severityLevel
+import com.github.casl0.jvncli.tui.severityTextStyle
 import com.github.casl0.jvncli.tui.wrapToWidth
 import com.jakewharton.mosaic.layout.KeyEvent
 import com.jakewharton.mosaic.layout.height
 import com.jakewharton.mosaic.layout.onKeyEvent
 import com.jakewharton.mosaic.modifier.Modifier
+import com.jakewharton.mosaic.ui.Color
 import com.jakewharton.mosaic.ui.Column
 import com.jakewharton.mosaic.ui.Text
 import com.jakewharton.mosaic.ui.TextStyle
@@ -34,8 +39,16 @@ private const val BASE_KEY_HINT = "[r] 再読込  [Esc] 戻る"
 internal fun vulnDetailKeyHint(scrollable: Boolean): String =
     if (scrollable) "[↑↓] スクロール  $BASE_KEY_HINT" else BASE_KEY_HINT
 
-/** 枠内へ描画する 1 行。表示幅は [contentWidth] 以内に整形済みであること。 */
-private data class DetailLine(val text: String, val style: TextStyle = TextStyle.Empty)
+/**
+ * 枠内へ描画する 1 行。表示幅は [contentWidth] 以内に整形済みであること。
+ *
+ * [color] は既定で色を指定せず、深刻度やエラーなど意味のある行だけが色を持つ。
+ */
+internal data class DetailLine(
+    val text: String,
+    val style: TextStyle = TextStyle.Empty,
+    val color: Color = Color.Unspecified,
+)
 
 /**
  * 脆弱性詳細を描画する。r で再読み込み、↑↓ で本文をスクロール。戻る(Esc)は App ルートが処理する。
@@ -84,7 +97,7 @@ internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
         // 本文が短くてもキーヒントが最下部に残るよう、本文側の高さを固定して残りを埋める。
         Column(modifier = Modifier.height(bodyBudget)) {
             for (i in start until end) {
-                Text(lines[i].text, textStyle = lines[i].style)
+                Text(lines[i].text, color = lines[i].color, textStyle = lines[i].style)
             }
             if (scrollable) {
                 Text("($end/${lines.size})".ellipsize(width), textStyle = TextStyle.Dim)
@@ -95,22 +108,22 @@ internal fun VulnDetailScreen(presenter: VulnDetailPresenter) {
 }
 
 /** 詳細の状態を、各行が [width] 以内に収まる [DetailLine] の並びへ展開する。 */
-private fun buildLines(state: VulnDetailUiState, width: Int): List<DetailLine> {
+internal fun buildLines(state: VulnDetailUiState, width: Int): List<DetailLine> {
     val lines = mutableListOf<DetailLine>()
-    fun add(text: String, style: TextStyle = TextStyle.Empty) =
-        text.wrapToWidth(width).forEach { lines.add(DetailLine(it, style)) }
+    fun add(text: String, style: TextStyle = TextStyle.Empty, color: Color = Color.Unspecified) =
+        text.wrapToWidth(width).forEach { lines.add(DetailLine(it, style, color)) }
     fun heading(text: String) {
         lines.add(DetailLine(""))
         add(text, TextStyle.Bold)
     }
 
     when (state.phase) {
-        LoadPhase.Loading -> add("読み込み中…")
-        LoadPhase.Error -> add(state.error ?: "エラーが発生しました")
+        LoadPhase.Loading -> add("読み込み中…", TextStyle.Dim)
+        LoadPhase.Error -> add(state.error ?: "エラーが発生しました", color = ERROR_COLOR)
         LoadPhase.Loaded -> {
             val detail = state.detail
             if (detail == null) {
-                add("詳細が見つかりませんでした")
+                add("詳細が見つかりませんでした", TextStyle.Dim)
             } else {
                 add(detail.title ?: "(タイトルなし)", TextStyle.Bold)
                 detail.id?.let { add("JVNDB: $it") }
@@ -124,7 +137,12 @@ private fun buildLines(state: VulnDetailUiState, width: Int): List<DetailLine> {
                         val version = cvss.version?.let { "v$it " } ?: ""
                         val severity = cvss.severity ?: "-"
                         val score = cvss.score?.toString() ?: "-"
-                        add("- $version$severity ($score)")
+                        val level = cvss.severityLevel()
+                        add(
+                            "- $version$severity ($score)",
+                            severityTextStyle(level),
+                            severityColor(level),
+                        )
                     }
                 }
                 if (detail.affected.isNotEmpty()) {
