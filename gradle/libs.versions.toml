@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.4.21"
-ksp = "2.3.13"
+ksp = "2.3.14"
 ktor = "3.6.1"
 ktorfit = "2.7.5"
 metro = "1.5.2"
